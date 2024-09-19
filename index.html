@@ -18,8 +18,6 @@
         .metric-card { background-color: #f9f9f9; border-radius: 5px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .metric-card h4 { margin-top: 0; color: #34495e; }
         .narrative { background-color: #e8f4fd; padding: 20px; border-radius: 5px; margin-top: 30px; border-left: 5px solid #3498db; }
-        .results-section { margin-top: 40px; }
-        .results-section h2, h3 { color: #2c3e50; }
     </style>
 </head>
 <body>
@@ -65,8 +63,8 @@
         
         <br><br>
         <button id="runAnalysisButton">Run Analysis</button>
-
-        <div id="results" class="results-section">
+        
+        <div id="results">
             <div class="chart-container">
                 <!-- Predefined canvas element for Chart.js -->
                 <canvas id="projectionsChart"></canvas>
@@ -75,11 +73,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('runAnalysisButton').addEventListener('click', function() {
-                runAnalysis();
-            });
-        });
+        // Financial Toolkit JavaScript Code
 
         const FinancialDecisionToolkit = {
             data: {
@@ -108,14 +102,14 @@
                     const m = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
                     const b = (sum_y - m * sum_x) / n;
 
-                    return Array(months).fill().map((_, i) => (m * (n + i + 1) + b).toFixed(2));
+                    return Array(months).fill().map((_, i) => m * (n + i + 1) + b);
                 };
 
                 return {
-                    revenueForecast: forecast(this.data.revenue),
-                    cogsForecast: forecast(this.data.cogs),
-                    expensesForecast: forecast(this.data.operatingExpenses),
-                    cashFlowForecast: forecast(this.data.cashFlow)
+                    revenueForecast: forecast(this.data.revenue).map(val => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                    cogsForecast: forecast(this.data.cogs).map(val => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                    expensesForecast: forecast(this.data.operatingExpenses).map(val => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                    cashFlowForecast: forecast(this.data.cashFlow).map(val => val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
                 };
             },
 
@@ -137,9 +131,9 @@
                     const cashFlow = netIncome * 0.8;
                     return {
                         scenario: scenario.name,
-                        projectedRevenue: projectedRevenue.toFixed(2),
-                        projectedNetIncome: netIncome.toFixed(2),
-                        projectedCashFlow: cashFlow.toFixed(2)
+                        projectedRevenue: projectedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        projectedNetIncome: netIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        projectedCashFlow: cashFlow.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                     };
                 });
             },
@@ -147,9 +141,9 @@
             getRecommendations() {
                 const latestCashFlow = this.data.cashFlow[this.data.cashFlow.length - 1];
                 return {
-                    expansionInvestments: (latestCashFlow * 0.4).toFixed(2),
-                    debtRepayment: (latestCashFlow * 0.3).toFixed(2),
-                    emergencyFunds: (latestCashFlow * 0.3).toFixed(2)
+                    expansionInvestments: (latestCashFlow * 0.4).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                    debtRepayment: (latestCashFlow * 0.3).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                    emergencyFunds: (latestCashFlow * 0.3).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                 };
             },
 
@@ -157,113 +151,108 @@
                 const monthlyRate = annualInterestRate / 12 / 100;
                 const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, loanTermMonths)) / 
                                        (Math.pow(1 + monthlyRate, loanTermMonths) - 1);
-                const totalCost = (monthlyPayment * loanTermMonths).toFixed(2);
-                const totalInterest = (totalCost - loanAmount).toFixed(2);
+                const totalCost = monthlyPayment * loanTermMonths;
                 return {
-                    monthlyPayment: monthlyPayment.toFixed(2),
-                    totalCost,
-                    totalInterest
+                    monthlyPayment: monthlyPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                    totalCost: totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                    totalInterest: (totalCost - loanAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                 };
             }
         };
 
         function runAnalysis() {
+            console.log("Run Analysis function triggered");
+
             const revenue = document.getElementById('revenue').value.split(',').map(Number);
             const cogs = document.getElementById('cogs').value.split(',').map(Number);
             const operatingExpenses = document.getElementById('operatingExpenses').value.split(',').map(Number);
             const cashFlow = document.getElementById('cashFlow').value.split(',').map(Number);
-            const loanAmount = Number(document.getElementById('loanAmount').value);
-            const interestRate = Number(document.getElementById('interestRate').value);
-            const loanTerm = Number(document.getElementById('loanTerm').value);
 
             FinancialDecisionToolkit.inputData({ revenue, cogs, operatingExpenses, cashFlow });
 
             const projections = FinancialDecisionToolkit.generateProjections();
             const riskAssessment = FinancialDecisionToolkit.performRiskAssessment();
             const recommendations = FinancialDecisionToolkit.getRecommendations();
-            const loanAnalysis = FinancialDecisionToolkit.analyzeLoanOption(loanAmount, interestRate, loanTerm);
+            const loanAnalysis = FinancialDecisionToolkit.analyzeLoanOption(
+                Number(document.getElementById('loanAmount').value),
+                Number(document.getElementById('interestRate').value),
+                Number(document.getElementById('loanTerm').value)
+            );
 
-            const resultsElement = document.getElementById('results');
-            if (resultsElement) {
-                resultsElement.innerHTML = '';
-
-                // Narrative Summary
-                resultsElement.innerHTML += `<div class="narrative"><h3>Financial Journey: Your Business Story</h3>`;
-                resultsElement.innerHTML += `<p>Imagine your business as a ship navigating through the financial ocean, with revenues ranging from $${Math.min(...revenue).toLocaleString()} to $${Math.max(...revenue).toLocaleString()}.</p>`;
-                resultsElement.innerHTML += `<p>We forecast a ${((projections.revenueForecast[5] - revenue[5]) / revenue[5] * 100).toFixed(2)}% change in revenue over the next 6 months.</p>`;
-                resultsElement.innerHTML += `<p>Your profit margin is ${((revenue[5] - cogs[5] - operatingExpenses[5]) / revenue[5] * 100).toFixed(2)}%, reflecting how efficiently your business is generating profits from revenue.</p>`;
-                resultsElement.innerHTML += `<p>Prepared for different market scenarios, your projected revenue could range from $${riskAssessment[2].projectedRevenue} in the worst case to $${riskAssessment[0].projectedRevenue} in the best case.</p>`;
-                resultsElement.innerHTML += `</div>`;
-
-                // Projections
-                resultsElement.innerHTML += `<h3>6-Month Financial Projections</h3>`;
-                resultsElement.innerHTML += `<p>Revenue Forecast: ${projections.revenueForecast.join(', ')}</p>`;
-                resultsElement.innerHTML += `<p>COGS Forecast: ${projections.cogsForecast.join(', ')}</p>`;
-                resultsElement.innerHTML += `<p>Expenses Forecast: ${projections.expensesForecast.join(', ')}</p>`;
-                resultsElement.innerHTML += `<p>Cash Flow Forecast: ${projections.cashFlowForecast.join(', ')}</p>`;
-
-                // Risk Assessment
-                resultsElement.innerHTML += `<h3>Risk Assessment</h3>`;
-                riskAssessment.forEach(scenario => {
-                    resultsElement.innerHTML += `<p><strong>${scenario.scenario}</strong>: Revenue = $${scenario.projectedRevenue}, 
-                        Net Income = $${scenario.projectedNetIncome}, Cash Flow = $${scenario.projectedCashFlow}</p>`;
-                });
-
-                // Recommendations
-                resultsElement.innerHTML += `<h3>Capital Allocation Recommendations</h3>`;
-                resultsElement.innerHTML += `<p>Expansion Investments: $${recommendations.expansionInvestments}</p>`;
-                resultsElement.innerHTML += `<p>Debt Repayment: $${recommendations.debtRepayment}</p>`;
-                resultsElement.innerHTML += `<p>Emergency Funds: $${recommendations.emergencyFunds}</p>`;
-
-                // Loan Analysis
-                resultsElement.innerHTML += `<h3>Loan Analysis</h3>`;
-                resultsElement.innerHTML += `<p>Monthly Payment: $${loanAnalysis.monthlyPayment}</p>`;
-                resultsElement.innerHTML += `<p>Total Cost: $${loanAnalysis.totalCost}</p>`;
-                resultsElement.innerHTML += `<p>Total Interest: $${loanAnalysis.totalInterest}</p>`;
-
-                // Chart
-                const ctx = document.getElementById('projectionsChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
-                        datasets: [
-                            {
-                                label: 'Revenue',
-                                data: projections.revenueForecast,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                fill: false
-                            },
-                            {
-                                label: 'COGS',
-                                data: projections.cogsForecast,
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                fill: false
-                            },
-                            {
-                                label: 'Expenses',
-                                data: projections.expensesForecast,
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                fill: false
-                            },
-                            {
-                                label: 'Cash Flow',
-                                data: projections.cashFlowForecast,
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            text: '6-Month Financial Projections'
+            // Create chart
+            const ctx = document.getElementById('projectionsChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
+                    datasets: [
+                        {
+                            label: 'Revenue Forecast',
+                            data: projections.revenueForecast,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'COGS Forecast',
+                            data: projections.cogsForecast,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Expenses Forecast',
+                            data: projections.expensesForecast,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Cash Flow Forecast',
+                            data: projections.cashFlowForecast,
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            fill: false
                         }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: '6-Month Financial Projections'
                     }
-                });
-            }
+                }
+            });
+
+            // Display financial results
+            let resultsHtml = '<h2>Analysis Results</h2>';
+            resultsHtml += `<h3>6-Month Financial Projections</h3>`;
+            resultsHtml += `<p>Revenue Forecast: ${projections.revenueForecast.join(', ')}</p>`;
+            resultsHtml += `<p>COGS Forecast: ${projections.cogsForecast.join(', ')}</p>`;
+            resultsHtml += `<p>Expenses Forecast: ${projections.expensesForecast.join(', ')}</p>`;
+            resultsHtml += `<p>Cash Flow Forecast: ${projections.cashFlowForecast.join(', ')}</p>`;
+
+            resultsHtml += `<h3>Risk Assessment</h3>`;
+            riskAssessment.forEach(scenario => {
+                resultsHtml += `<p>${scenario.scenario} Case: Revenue = ${scenario.projectedRevenue}, Net Income = ${scenario.projectedNetIncome}, Cash Flow = ${scenario.projectedCashFlow}</p>`;
+            });
+
+            resultsHtml += `<h3>Capital Allocation Recommendations</h3>`;
+            resultsHtml += `<p>Expansion Investments: $${recommendations.expansionInvestments}</p>`;
+            resultsHtml += `<p>Debt Repayment: $${recommendations.debtRepayment}</p>`;
+            resultsHtml += `<p>Emergency Funds: $${recommendations.emergencyFunds}</p>`;
+
+            resultsHtml += `<h3>Loan Analysis</h3>`;
+            resultsHtml += `<p>Monthly Payment: $${loanAnalysis.monthlyPayment}</p>`;
+            resultsHtml += `<p>Total Cost: $${loanAnalysis.totalCost}</p>`;
+            resultsHtml += `<p>Total Interest: $${loanAnalysis.totalInterest}</p>`;
+
+            document.getElementById('results').innerHTML = resultsHtml;
         }
+
+        // Add event listener for the button click
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('runAnalysisButton').addEventListener('click', function() {
+                runAnalysis();
+            });
+        });
     </script>
 </body>
 </html>
