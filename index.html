@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI-Powered Financial Decision-Making Toolkit</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Include Chart.js library -->
+    <title>AI-Powered Financial Decision-Making Toolkit</title>
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 1000px; margin: 0 auto; background-color: #f0f4f8; }
@@ -65,7 +65,12 @@
         <br><br>
         <button id="runAnalysisButton">Run Analysis</button>
         
-        <div id="results"></div>
+        <div id="results">
+            <div class="chart-container">
+                <!-- Predefined canvas element for Chart.js -->
+                <canvas id="projectionsChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -156,8 +161,7 @@
         }
     };
 
-    // Attach runAnalysis to the global window object
-    window.runAnalysis = function() {
+    function runAnalysis() {
         // Get input values
         const revenue = document.getElementById('revenue').value.split(',').map(Number);
         const cogs = document.getElementById('cogs').value.split(',').map(Number);
@@ -240,7 +244,7 @@
             resultsHtml += `<li><strong>${scenario.scenario}:</strong> Projected Revenue: $${scenario.projectedRevenue.toFixed(2)}, Net Income: $${scenario.projectedNetIncome.toFixed(2)}, Cash Flow: $${scenario.projectedCashFlow.toFixed(2)}</li>`;
         });
         resultsHtml += `</ul>`;
-        resultsHtml += `<p>Based on your latest cash flow of $${latestCashFlow.toLocaleString()}, we recommend allocating funds towards expansion, debt repayment, and emergency reserves to strengthen your financial position.</p>`;
+        resultsHtml += `<p>Based on your latest cash flow of $${cashFlow[cashFlow.length - 1].toLocaleString()}, we recommend allocating funds towards expansion, debt repayment, and emergency reserves to strengthen your financial position.</p>`;
         resultsHtml += '</div>';
 
         // Append the results to the DOM
@@ -265,6 +269,9 @@
             }
         });
     }
+
+    // Attach event listener to the button
+    document.getElementById('runAnalysisButton').addEventListener('click', runAnalysis);
     </script>
 </body>
 </html>
