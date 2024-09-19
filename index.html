@@ -108,7 +108,7 @@
                     const m = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
                     const b = (sum_y - m * sum_x) / n;
 
-                    return Array(months).fill().map((_, i) => m * (n + i + 1) + b);
+                    return Array(months).fill().map((_, i) => (m * (n + i + 1) + b).toFixed(2));
                 };
 
                 return {
@@ -137,9 +137,9 @@
                     const cashFlow = netIncome * 0.8;
                     return {
                         scenario: scenario.name,
-                        projectedRevenue,
-                        projectedNetIncome: netIncome,
-                        projectedCashFlow: cashFlow
+                        projectedRevenue: projectedRevenue.toFixed(2),
+                        projectedNetIncome: netIncome.toFixed(2),
+                        projectedCashFlow: cashFlow.toFixed(2)
                     };
                 });
             },
@@ -147,9 +147,9 @@
             getRecommendations() {
                 const latestCashFlow = this.data.cashFlow[this.data.cashFlow.length - 1];
                 return {
-                    expansionInvestments: latestCashFlow * 0.4,
-                    debtRepayment: latestCashFlow * 0.3,
-                    emergencyFunds: latestCashFlow * 0.3
+                    expansionInvestments: (latestCashFlow * 0.4).toFixed(2),
+                    debtRepayment: (latestCashFlow * 0.3).toFixed(2),
+                    emergencyFunds: (latestCashFlow * 0.3).toFixed(2)
                 };
             },
 
@@ -157,11 +157,12 @@
                 const monthlyRate = annualInterestRate / 12 / 100;
                 const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, loanTermMonths)) / 
                                        (Math.pow(1 + monthlyRate, loanTermMonths) - 1);
-                const totalCost = monthlyPayment * loanTermMonths;
+                const totalCost = (monthlyPayment * loanTermMonths).toFixed(2);
+                const totalInterest = (totalCost - loanAmount).toFixed(2);
                 return {
-                    monthlyPayment,
+                    monthlyPayment: monthlyPayment.toFixed(2),
                     totalCost,
-                    totalInterest: totalCost - loanAmount
+                    totalInterest
                 };
             }
         };
@@ -184,7 +185,15 @@
 
             const resultsElement = document.getElementById('results');
             if (resultsElement) {
-                resultsElement.innerHTML = '<h2>Analysis Results</h2>';
+                resultsElement.innerHTML = '';
+
+                // Narrative Summary
+                resultsElement.innerHTML += `<div class="narrative"><h3>Financial Journey: Your Business Story</h3>`;
+                resultsElement.innerHTML += `<p>Imagine your business as a ship navigating through the financial ocean, with revenues ranging from $${Math.min(...revenue).toLocaleString()} to $${Math.max(...revenue).toLocaleString()}.</p>`;
+                resultsElement.innerHTML += `<p>We forecast a ${((projections.revenueForecast[5] - revenue[5]) / revenue[5] * 100).toFixed(2)}% change in revenue over the next 6 months.</p>`;
+                resultsElement.innerHTML += `<p>Your profit margin is ${((revenue[5] - cogs[5] - operatingExpenses[5]) / revenue[5] * 100).toFixed(2)}%, reflecting how efficiently your business is generating profits from revenue.</p>`;
+                resultsElement.innerHTML += `<p>Prepared for different market scenarios, your projected revenue could range from $${riskAssessment[2].projectedRevenue} in the worst case to $${riskAssessment[0].projectedRevenue} in the best case.</p>`;
+                resultsElement.innerHTML += `</div>`;
 
                 // Projections
                 resultsElement.innerHTML += `<h3>6-Month Financial Projections</h3>`;
@@ -196,29 +205,21 @@
                 // Risk Assessment
                 resultsElement.innerHTML += `<h3>Risk Assessment</h3>`;
                 riskAssessment.forEach(scenario => {
-                    resultsElement.innerHTML += `<p><strong>${scenario.scenario}</strong>: Revenue = ${scenario.projectedRevenue.toFixed(2)}, 
-                        Net Income = ${scenario.projectedNetIncome.toFixed(2)}, Cash Flow = ${scenario.projectedCashFlow.toFixed(2)}</p>`;
+                    resultsElement.innerHTML += `<p><strong>${scenario.scenario}</strong>: Revenue = $${scenario.projectedRevenue}, 
+                        Net Income = $${scenario.projectedNetIncome}, Cash Flow = $${scenario.projectedCashFlow}</p>`;
                 });
 
                 // Recommendations
                 resultsElement.innerHTML += `<h3>Capital Allocation Recommendations</h3>`;
-                resultsElement.innerHTML += `<p>Expansion Investments: $${recommendations.expansionInvestments.toFixed(2)}</p>`;
-                resultsElement.innerHTML += `<p>Debt Repayment: $${recommendations.debtRepayment.toFixed(2)}</p>`;
-                resultsElement.innerHTML += `<p>Emergency Funds: $${recommendations.emergencyFunds.toFixed(2)}</p>`;
+                resultsElement.innerHTML += `<p>Expansion Investments: $${recommendations.expansionInvestments}</p>`;
+                resultsElement.innerHTML += `<p>Debt Repayment: $${recommendations.debtRepayment}</p>`;
+                resultsElement.innerHTML += `<p>Emergency Funds: $${recommendations.emergencyFunds}</p>`;
 
                 // Loan Analysis
                 resultsElement.innerHTML += `<h3>Loan Analysis</h3>`;
-                resultsElement.innerHTML += `<p>Monthly Payment: $${loanAnalysis.monthlyPayment.toFixed(2)}</p>`;
-                resultsElement.innerHTML += `<p>Total Cost: $${loanAnalysis.totalCost.toFixed(2)}</p>`;
-                resultsElement.innerHTML += `<p>Total Interest: $${loanAnalysis.totalInterest.toFixed(2)}</p>`;
-
-                // Narrative Summary
-                resultsElement.innerHTML += `<div class="narrative"><h3>Financial Journey: Your Business Story</h3>`;
-                resultsElement.innerHTML += `<p>Imagine your business as a ship navigating through the financial ocean, with revenues ranging from $${Math.min(...revenue).toLocaleString()} to $${Math.max(...revenue).toLocaleString()}.</p>`;
-                resultsElement.innerHTML += `<p>We forecast a ${((projections.revenueForecast[5] - revenue[5]) / revenue[5] * 100).toFixed(2)}% change in revenue over the next 6 months.</p>`;
-                resultsElement.innerHTML += `<p>Your profit margin is ${((revenue[5] - cogs[5] - operatingExpenses[5]) / revenue[5] * 100).toFixed(2)}%, reflecting how efficiently your business is generating profits from revenue.</p>`;
-                resultsElement.innerHTML += `<p>Prepared for different market scenarios, your projected revenue could range from $${riskAssessment[2].projectedRevenue.toLocaleString()} in the worst case to $${riskAssessment[0].projectedRevenue.toLocaleString()} in the best case.</p>`;
-                resultsElement.innerHTML += `</div>`;
+                resultsElement.innerHTML += `<p>Monthly Payment: $${loanAnalysis.monthlyPayment}</p>`;
+                resultsElement.innerHTML += `<p>Total Cost: $${loanAnalysis.totalCost}</p>`;
+                resultsElement.innerHTML += `<p>Total Interest: $${loanAnalysis.totalInterest}</p>`;
 
                 // Chart
                 const ctx = document.getElementById('projectionsChart').getContext('2d');
