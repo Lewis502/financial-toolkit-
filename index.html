@@ -76,6 +76,8 @@
     </div>
 
     <script>
+        let financialChart;
+
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('runAnalysisButton').addEventListener('click', function() {
                 runAnalysis();
@@ -172,7 +174,12 @@
             const ctx = document.getElementById('financialChart').getContext('2d');
             const months = ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'];
             
-            new Chart(ctx, {
+            // Destroy existing chart if it exists
+            if (financialChart) {
+                financialChart.destroy();
+            }
+            
+            financialChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: [...months, ...months.map(m => m + ' (Projected)')],
@@ -264,7 +271,10 @@
                 resultsElement.innerHTML = '<h2>Analysis Results</h2>';
                 resultsElement.innerHTML += '<div class="chart-container"><canvas id="financialChart"></canvas></div>';
 
-                createFinancialChart(FinancialDecisionToolkit.data, projections);
+                // Call createFinancialChart after the DOM has been updated
+                setTimeout(() => {
+                    createFinancialChart(FinancialDecisionToolkit.data, projections);
+                }, 0);
 
                 // Narrative Summary
                 resultsElement.innerHTML += `<div class="narrative"><h3>Financial Journey: Your Business Story</h3>`;
@@ -304,3 +314,4 @@
     </script>
 </body>
 </html>
+                                                                        
