@@ -173,7 +173,17 @@
             console.log("Operating Expenses Input:", operatingExpenses);
             console.log("Cash Flow Input:", cashFlow);
 
-            // Continue with analysis logic...
+            // Find the results element and ensure it exists
+            const resultsElement = document.getElementById('results');
+            if (resultsElement) {
+                resultsElement.innerHTML = '<h2>Analysis Results</h2>';
+
+                // Additional DOM updates or results display logic can go here
+            } else {
+                console.error('Results element not found');
+            }
+
+            // Continue with further analysis logic...
         }
 
         // Add event listener for the button click
