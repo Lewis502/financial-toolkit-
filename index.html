@@ -73,8 +73,14 @@
     </div>
 
     <script>
-        // Financial Toolkit JavaScript Code
+        // Ensure the DOM is fully loaded before running any JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('runAnalysisButton').addEventListener('click', function() {
+                runAnalysis();
+            });
+        });
 
+        // Financial Toolkit JavaScript Code
         const FinancialDecisionToolkit = {
             data: {
                 revenue: [],
@@ -182,16 +188,7 @@
             } else {
                 console.error('Results element not found');
             }
-
-            // Continue with further analysis logic...
         }
-
-        // Add event listener for the button click
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.getElementById('runAnalysisButton').addEventListener('click', function() {
-                runAnalysis();
-            });
-        });
     </script>
 </body>
 </html>
