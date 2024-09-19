@@ -139,4 +139,49 @@
             },
 
             getRecommendations() {
-               
+                const latestCashFlow = this.data.cashFlow[this.data.cashFlow.length - 1];
+                return {
+                    expansionInvestments: latestCashFlow * 0.4,
+                    debtRepayment: latestCashFlow * 0.3,
+                    emergencyFunds: latestCashFlow * 0.3
+                };
+            },
+
+            analyzeLoanOption(loanAmount, annualInterestRate, loanTermMonths) {
+                const monthlyRate = annualInterestRate / 12 / 100;
+                const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, loanTermMonths)) / 
+                                       (Math.pow(1 + monthlyRate, loanTermMonths) - 1);
+                const totalCost = monthlyPayment * loanTermMonths;
+                return {
+                    monthlyPayment,
+                    totalCost,
+                    totalInterest: totalCost - loanAmount
+                };
+            }
+        };
+
+        function runAnalysis() {
+            console.log("Run Analysis function triggered");
+
+            const revenue = document.getElementById('revenue').value.split(',').map(Number);
+            const cogs = document.getElementById('cogs').value.split(',').map(Number);
+            const operatingExpenses = document.getElementById('operatingExpenses').value.split(',').map(Number);
+            const cashFlow = document.getElementById('cashFlow').value.split(',').map(Number);
+
+            console.log("Revenue Input:", revenue);
+            console.log("COGS Input:", cogs);
+            console.log("Operating Expenses Input:", operatingExpenses);
+            console.log("Cash Flow Input:", cashFlow);
+
+            // Continue with analysis logic...
+        }
+
+        // Add event listener for the button click
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('runAnalysisButton').addEventListener('click', function() {
+                runAnalysis();
+            });
+        });
+    </script>
+</body>
+</html>
